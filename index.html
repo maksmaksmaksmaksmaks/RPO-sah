@@ -11,9 +11,9 @@
 
 <script>
     $("button").click(function(){
-        $.post("http://localhost:8080/users/",
+        $.post("http://localhost:8080/users",
             {
-                username:"maks"
+
             },
             function(data){
                 $("#demo").text(JSON.stringify(data));

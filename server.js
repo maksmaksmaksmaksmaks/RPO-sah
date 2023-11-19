@@ -39,13 +39,33 @@ app.post('/login', async (req, res)=> {
     try {
         await client.connect();
         const query =client.db("sah").collection("users");
-        const user=await query.find(req.body).toArray();
-        console.log("users",users);7
-        res.json(users);
+        const login=await query.find(req.body).project({ pass: 0}) .toArray();
+        console.log("users",login);
+        res.json(login);
         res.end();
 
     } catch (e) {
         console.error(e);
+    } finally {
+        await client.close();
+    }
+})
+
+app.post('/register', async (req, res)=> {
+    try {
+        if(req.body._id===undefined)
+            throw new Error("Body is empty");
+        await client.connect();
+        await client.db("sah").collection("users").insertOne(req.body,(err,res)=>{
+            if(err)throw err;
+        });
+        console.log("uporabnik dodan!");
+        res.send({message:"uporabnik dodan!"});
+        res.end();
+
+    } catch (e) {
+        console.error(e);
+        res.send({message:e.message})
     } finally {
         await client.close();
     }
