@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+</head>
+<body>
+<input type="text"></input>
+<button id="submit">submit move</button>
+<div id="demo"></div>
+
+<script>
+    setInterval(checkMove,2000);
+    let last_move="";
+    function checkMove(){
+        $.post("http://localhost:8080/game_check",
+            {
+                // p1:"maks",
+                // p2:"denis",
+                _id:"655b416bdf90e2f3d291d6f3",
+                //move:"ph4"
+            },
+            function(data){
+            if(last_move===data[0].last_move){
+                $("body").css('background-color','red');
+            }else{
+                $("body").css('background-color','green');
+            }
+            });
+    }
+
+    $("#submit").click(function(){
+        last_move=$("input").val();
+        $("input").val('');
+        $.post("http://localhost:8080/game_move",
+            {
+               // p1:"maks",
+               // p2:"denis",
+                _id:"655b416bdf90e2f3d291d6f3",
+                move:last_move
+            },
+            function(data){
+                $("#demo").text(JSON.stringify(data));
+                console.log(data);
+            });
+    });
+</script>
+</body>
+</html>
