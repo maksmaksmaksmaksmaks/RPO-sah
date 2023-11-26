@@ -12,20 +12,19 @@
 
 <script>
     setInterval(checkMove,2000);
-    let last_move="";
+    let last_move="newmove";
     function checkMove(){
         $.post("http://localhost:8080/game_check",
             {
-                // p1:"maks",
-                // p2:"denis",
                 _id:"655b416bdf90e2f3d291d6f3",
-                //move:"ph4"
             },
             function(data){
             if(last_move===data[0].last_move){
                 $("body").css('background-color','red');
+                $("#submit").attr('disabled', true);
             }else{
                 $("body").css('background-color','green');
+                $("#submit").attr('disabled', false);
             }
             });
     }
@@ -35,8 +34,6 @@
         $("input").val('');
         $.post("http://localhost:8080/game_move",
             {
-               // p1:"maks",
-               // p2:"denis",
                 _id:"655b416bdf90e2f3d291d6f3",
                 move:last_move
             },

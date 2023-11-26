@@ -11,9 +11,10 @@
 
 <script>
     $("button").click(function(){
-        $.post("http://localhost:8080/users",
+        $.post("http://localhost:8080/register",
             {
-
+                user:"jakob",
+                pass:"geslo123"
             },
             function(data){
                 $("#demo").text(JSON.stringify(data));

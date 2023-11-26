@@ -39,7 +39,7 @@ app.post('/login', async (req, res)=> {
     try {
         await client.connect();
         const query =client.db("sah").collection("users");
-        const login=await query.find({_id: req.body.username,pass:req.body.pass}).project({ pass: 0}) .toArray();
+        const login=await query.find({_id: req.body.user,pass:req.body.pass}).project({ pass: 0}) .toArray();
         console.log("users",login);
         res.json(login);
         res.end();
@@ -53,10 +53,10 @@ app.post('/login', async (req, res)=> {
 
 app.post('/register', async (req, res)=> {
     try {
-        if(req.body._id===undefined||req.body.pass===undefined)
+        if(req.body.user===undefined||req.body.pass===undefined)
             throw new Error("Body is empty");
         await client.connect();
-        await client.db("sah").collection("users").insertOne(req.body,(err,res)=>{
+        await client.db("sah").collection("users").insertOne({_id: req.body.user,pass:req.body.pass},(err,res)=>{
             if(err)throw err;
         });
         console.log("uporabnik dodan!");
@@ -76,7 +76,7 @@ app.post('/game_check', async (req, res)=> {
     try {
         await client.connect();
         const query =client.db("sah").collection("games");
-        const lastMove=await query.find({_id :new ObjectId(req.body._id)}).sort({_id:-1}).limit(1).project({last_move: 1}).toArray();
+        const lastMove=await query.find({_id :new ObjectId(req.body._id)}).project({last_move: 1}).toArray();
         console.log(lastMove);
         res.json(lastMove);
         res.end();
