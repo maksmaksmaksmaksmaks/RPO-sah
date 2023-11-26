@@ -39,7 +39,7 @@ app.post('/login', async (req, res)=> {
     try {
         await client.connect();
         const query =client.db("sah").collection("users");
-        const login=await query.find(req.body).project({ pass: 0}) .toArray();
+        const login=await query.find({_id: req.body.username,pass:req.body.pass}).project({ pass: 0}) .toArray();
         console.log("users",login);
         res.json(login);
         res.end();
