@@ -24,11 +24,30 @@ const client = new MongoClient(getUri(), {
     }
 });
 
+app.post('/user_edit', async (req, res)=> {
+    try {
+        if(req.body.user===undefined||req.body.change===undefined||req.body.to===undefined)
+            throw new Error("Body is empty");
+        await client.connect();
+        await client.db("sah").collection("users").updateOne({_id: req.body.user},{ $set: { [req.body.change]: req.body.to}},(err,res)=>{
+            if(err)throw err;
+        });
+        console.log("spremenjeno");
+        res.json("spremenjeno");
+        res.end();
+
+    } catch (e) {
+        console.error(e);
+    } finally {
+        await client.close();
+    }
+})
+
 app.post('/users', async (req, res)=> {
     try {
         await client.connect();
         const query =client.db("sah").collection("users");
-        const users=await query.find(req.body).toArray();
+        const users=await query.find(req.body).project({ pass: 0}).toArray();
         console.log("users",users);
         res.json(users);
         res.end();
