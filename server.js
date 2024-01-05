@@ -105,7 +105,6 @@ async function getStockfishMove(fen,AI){
 }
 
 app.post('/game_move_stockfish', async (req, res)=> {
-    console.log("rec");
     try {
         if(req.body._id===undefined || req.body.move===undefined || req.body.fen===undefined||req.body.AI===undefined)
             throw new Error("Body is empty");
@@ -129,14 +128,16 @@ app.post('/game_move_stockfish', async (req, res)=> {
 
 
 app.post('/game_check', async (req, res)=> {
-    if(req.body._id===undefined)
-        throw new Error("Body is empty");
+
     try {
+        if(req.body.game_id===undefined)
+            throw new Error("Body is empty");
+
         await client.connect();
         const query =client.db("sah").collection("games");
-        const lastMove=await query.find({_id :new ObjectId(req.body._id)}).project({last_move: 1}).toArray();
-        console.log(lastMove);
-        res.json(lastMove);
+        const lastMove=await query.find({_id :new ObjectId(req.body.game_id)}).project({_id: 0,last_move:1}).toArray();
+        console.log(lastMove[0].last_move);
+        res.json(lastMove[0].last_move);
         res.end();
 
     } catch (e) {
