@@ -62,8 +62,8 @@ app.post('/login', async (req, res)=> {
     try {
         await client.connect();
         const query =client.db("sah").collection("users");
-        const login=await query.find({_id: req.body.user,pass:req.body.pass}).project({ pass: 0}) .toArray();
-        console.log("users",login);
+        const login=await query.find({_id: req.body._id,pass:req.body.pass}).project({ pass: 0}) .toArray();
+        console.log(login);
         res.json(login);
         res.end();
 
@@ -105,6 +105,7 @@ async function getStockfishMove(fen,AI){
 }
 
 app.post('/game_move_stockfish', async (req, res)=> {
+    console.log("rec");
     try {
         if(req.body._id===undefined || req.body.move===undefined || req.body.fen===undefined||req.body.AI===undefined)
             throw new Error("Body is empty");
@@ -114,6 +115,7 @@ app.post('/game_move_stockfish', async (req, res)=> {
         await client.db("sah").collection("games").updateOne({_id :new ObjectId(req.body._id)},{$set: {last_move:req.body.move},$push:{states:req.body.fen}},(err,res)=>{
             if(err)throw err;
         });
+        console.log(move);
         res.send(move);
         res.end();
 
@@ -183,6 +185,63 @@ app.post('/game_move', async (req, res)=> {
             if(err)throw err;
         });
         res.send("moved!");
+        res.end();
+
+    } catch (e) {
+        console.error(e);
+        res.send({message:e.message})
+    } finally {
+        await client.close();
+    }
+})
+
+app.post('/gamelist', async (req, res)=> {
+    try {
+        await client.connect();
+        const query =client.db("sah").collection("gamelist");
+        const gamelist=await query.find().project({ _id:0}).toArray();
+        console.log("gamelist");
+        res.json(gamelist);
+        res.end();
+
+    } catch (e) {
+        console.error(e);
+    } finally {
+        await client.close();
+    }
+})
+
+app.post('/gamelist_add', async (req, res)=> {
+    try {
+        if(req.body.game_id===undefined)
+            throw new Error("Game id missing");
+        await client.connect();
+        await client.db("sah").collection("gamelist").insertOne({game_id:req.body.game_id},(err,res)=>{
+            if(err)throw err;
+        });
+        console.log("game dodana!");
+        res.send({message:"game dodana!"});
+        res.end();
+
+    } catch (e) {
+        console.error(e);
+        res.send({message:e.message})
+    } finally {
+        await client.close();
+    }
+})
+
+app.post('/gamelist_remove', async (req, res)=> {
+    try {
+        if(req.body.game_id===undefined)
+            throw new Error("Game id missing");
+        console.log(req.body.game_id);
+        await client.connect();
+        await client.db("sah").collection("gamelist").deleteOne({game_id:req.body.game_id},(err,res)=>{
+            if(err)throw err;
+        });
+        console.log("game izbrisan!");
+        res.send({message:"game izbrisan!"});
         res.end();
 
     } catch (e) {
