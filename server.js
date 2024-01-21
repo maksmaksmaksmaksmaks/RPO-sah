@@ -135,10 +135,10 @@ app.post('/game_fen', async (req, res)=> {
 
         await client.connect();
         const query =client.db("sah").collection("games");
-        const FEN=await query.find({_id :new ObjectId(req.body.game_id)}).project({_id: 0,states:1}).toArray();
+        const FEN=await query.find({_id :new ObjectId(req.body.game_id)}).project({_id: 0,states:1,figureType:1}).toArray();
         let arr=FEN[0].states;
-        console.log(arr[arr.length-1]);
-        res.json(arr[arr.length-1]);
+        console.log(arr[arr.length-1]+" "+FEN[0].figureType);
+        res.json(arr[arr.length-1]+" "+FEN[0].figureType);
         res.end();
 
     } catch (e) {
@@ -174,6 +174,9 @@ app.post('/game_start', async (req, res)=> {
         var AI=req.body.AI;
         var gameType=req.body.gameType;
         var fen=req.body.fen;
+        var figureType=req.body.figureType;
+        if(figureType==undefined)
+            figureType="anarchy";
         if(AI===undefined)
             AI=0;
         if(gameType===undefined)
@@ -181,7 +184,7 @@ app.post('/game_start', async (req, res)=> {
         if(fen===undefined)
             fen="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
         await client.connect();
-        var game={p1:req.body.p1,p2:req.body.p2,gameType:gameType,AI:AI,states:[fen],last_move:""};
+        var game={p1:req.body.p1,p2:req.body.p2,gameType:gameType,AI:AI,figureType:figureType,states:[fen],last_move:""};
         await client.db("sah").collection("games").insertOne(game,(err,res)=>{
             if(err)throw err;
         });
