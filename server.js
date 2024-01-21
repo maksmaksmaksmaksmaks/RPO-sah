@@ -83,12 +83,12 @@ app.post('/register', async (req, res)=> {
             if(err)throw err;
         });
         console.log("uporabnik dodan!");
-        res.send({message:"uporabnik dodan!"});
+        res.send("uporabnik dodan!");
         res.end();
 
     } catch (e) {
         console.error(e);
-        res.send({message:e.message})
+        res.send(e.message)
     } finally {
         await client.close();
     }
@@ -126,6 +126,27 @@ app.post('/game_move_stockfish', async (req, res)=> {
     }
 })
 
+
+app.post('/game_fen', async (req, res)=> {
+
+    try {
+        if(req.body.game_id===undefined)
+            throw new Error("Body is empty");
+
+        await client.connect();
+        const query =client.db("sah").collection("games");
+        const FEN=await query.find({_id :new ObjectId(req.body.game_id)}).project({_id: 0,states:1}).toArray();
+        let arr=FEN[0].states;
+        console.log(arr[arr.length-1]);
+        res.json(arr[arr.length-1]);
+        res.end();
+
+    } catch (e) {
+        console.error(e);
+    } finally {
+        await client.close();
+    }
+})
 
 app.post('/game_check', async (req, res)=> {
 
