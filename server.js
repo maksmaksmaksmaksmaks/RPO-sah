@@ -175,7 +175,7 @@ app.post('/game_start', async (req, res)=> {
         var gameType=req.body.gameType;
         var fen=req.body.fen;
         var figureType=req.body.figureType;
-        if(figureType==undefined)
+        if(figureType===undefined)
             figureType="anarchy";
         if(AI===undefined)
             AI=0;
