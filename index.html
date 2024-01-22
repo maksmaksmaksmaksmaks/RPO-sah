@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+</head>
+<body>
+<button>click me</button>
+<div id="demo"></div>
+
+<script>
+    $("button").click(function(){
+        $.post("http://localhost:8080/game_start",
+            {
+
+                p1:"current_user",
+                p2:"unknown"
+            },
+            function(data){
+                $("#demo").text(JSON.stringify(data));
+                console.log(data);
+            });
+    });
+</script>
+</body>
+</html>
