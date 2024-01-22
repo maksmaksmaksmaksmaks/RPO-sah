@@ -11,10 +11,11 @@
 
 <script>
     $("button").click(function(){
-        $.post("http://localhost:8080/register",
+        $.post("http://localhost:8080/game_start",
             {
-                user:"jakob",
-                pass:"geslo123"
+
+                p1:"current_user",
+                p2:"unknown"
             },
             function(data){
                 $("#demo").text(JSON.stringify(data));
