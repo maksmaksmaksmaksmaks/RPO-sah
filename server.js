@@ -63,8 +63,11 @@ app.post('/login', async (req, res)=> {
         await client.connect();
         const query =client.db("sah").collection("users");
         const login=await query.find({_id: req.body._id,pass:req.body.pass}).project({ pass: 0}) .toArray();
-        console.log(login);
-        res.json(login);
+        console.log(login[0]);
+        if(login[0]===undefined)
+            res.json("0")
+        else
+            res.json(login[0]);
         res.end();
 
     } catch (e) {
@@ -100,7 +103,7 @@ async function getStockfishMove(fen,AI){
     if(!move.success)
         throw "fen error";
     move=move.data;
-    return move.substring(move.search("bestmove")+9,move.search("ponder")-1);
+    return move.substring(move.search("bestmove")+9,move.search("bestmove")+14);
 
 }
 
@@ -175,6 +178,8 @@ app.post('/game_start', async (req, res)=> {
         var gameType=req.body.gameType;
         var fen=req.body.fen;
         var figureType=req.body.figureType;
+        if(req.body.p1==="")
+            req.body.p1="guest";
         if(figureType===undefined)
             figureType="anarchy";
         if(AI===undefined)
@@ -188,6 +193,11 @@ app.post('/game_start', async (req, res)=> {
         await client.db("sah").collection("games").insertOne(game,(err,res)=>{
             if(err)throw err;
         });
+
+        if(gameType===0)
+            await client.db("sah").collection("gamelist").insertOne({game_id:game._id,p1:req.body.p1,fen:fen},(err,res)=>{
+                if(err)throw err;
+            });
         console.log("igra",game._id);
         res.send(game._id);
         res.end();
@@ -224,7 +234,7 @@ app.post('/gamelist', async (req, res)=> {
     try {
         await client.connect();
         const query =client.db("sah").collection("gamelist");
-        const gamelist=await query.find().project({ _id:0}).toArray();
+        const gamelist=await query.find().project({ _id:0,game_id:1,p1:1,fen:1}).toArray();
         console.log("gamelist");
         res.json(gamelist);
         res.end();
@@ -237,6 +247,7 @@ app.post('/gamelist', async (req, res)=> {
 })
 
 app.post('/gamelist_add', async (req, res)=> {
+    //NOT USED ANYMORE AUTOMATICLY ADDED IN GAME START
     try {
         if(req.body.game_id===undefined)
             throw new Error("Game id missing");
@@ -262,7 +273,7 @@ app.post('/gamelist_remove', async (req, res)=> {
             throw new Error("Game id missing");
         console.log(req.body.game_id);
         await client.connect();
-        await client.db("sah").collection("gamelist").deleteOne({game_id:req.body.game_id},(err,res)=>{
+        await client.db("sah").collection("gamelist").deleteOne({game_id:new ObjectId(req.body.game_id)},(err,res)=>{
             if(err)throw err;
         });
         console.log("game izbrisan!");
